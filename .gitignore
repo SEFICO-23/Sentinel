@@ -1,0 +1,32 @@
+# Database
+sentinel.db
+sentinel.db-wal
+sentinel.db-shm
+test_sentinel.db
+test_sentinel.db-wal
+test_sentinel.db-shm
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Archive (uploaded PDFs - may contain sensitive data)
+archive/
+
+# Environment
+.env
+*.env
+venv/
