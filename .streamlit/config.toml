@@ -5,10 +5,9 @@ headless = true
 gatherUsageStats = false
 
 [theme]
-# Default light theme - dark mode is handled dynamically via CSS in app.py
 base = "light"
-primaryColor = "#2563EB"
+primaryColor = "#1E3161"
 backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F8FAFC"
-textColor = "#1E293B"
+secondaryBackgroundColor = "#DDE9E8"
+textColor = "#1E3161"
 font = "sans serif"

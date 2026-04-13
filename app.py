@@ -61,25 +61,24 @@ if "dark_mode" not in st.session_state:
 
 dark = st.session_state.dark_mode
 
-# CSS with theme variables
+# CSS with Calibrium-branded theme variables
 st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 :root {{
-    --bg-primary: {'#0F172A' if dark else '#FFFFFF'};
-    --bg-secondary: {'#1E293B' if dark else '#F8FAFC'};
-    --bg-card: {'#1E293B' if dark else '#FFFFFF'};
-    --border: {'#334155' if dark else '#E2E8F0'};
-    --text-primary: {'#F1F5F9' if dark else '#1E293B'};
-    --text-secondary: {'#94A3B8' if dark else '#475569'};
-    --text-muted: {'#64748B' if dark else '#64748B'};
-    --accent: #2563EB;
-    --shadow: {'rgba(0,0,0,0.3)' if dark else 'rgba(0,0,0,0.06)'};
-    --shadow-hover: {'rgba(0,0,0,0.5)' if dark else 'rgba(0,0,0,0.1)'};
+    --bg-primary: {'#0B1929' if dark else '#FFFFFF'};
+    --bg-secondary: {'#132338' if dark else '#DDE9E8'};
+    --bg-card: {'#132338' if dark else '#FFFFFF'};
+    --border: {'#1E3161' if dark else '#E0E0E0'};
+    --text-primary: {'#E8EDF2' if dark else '#1E3161'};
+    --text-secondary: {'#8BA3C4' if dark else '#5A6B7F'};
+    --text-muted: {'#6B83A3' if dark else '#7F8C8D'};
+    --accent: #1E3161;
+    --accent-light: {'#2A4080' if dark else '#DDE9E8'};
+    --shadow: {'rgba(0,0,0,0.4)' if dark else 'rgba(0,0,0,0.05)'};
+    --shadow-hover: {'rgba(0,0,0,0.5)' if dark else 'rgba(0,0,0,0.08)'};
 }}
 
-.stApp {{ font-family: 'Inter', sans-serif; {'background-color: #0F172A;' if dark else ''} }}
+.stApp {{ font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; {'background-color: #0B1929;' if dark else ''} }}
 .block-container {{ padding-top: 1.5rem; max-width: 1400px; }}
 
 /* Streamlit dark mode overrides */
@@ -87,109 +86,109 @@ st.markdown(f"""
 /* === GLOBAL DARK OVERRIDES === */
 
 /* Main app background */
-.stApp, [data-testid="stAppViewContainer"], .main .block-container { background-color: #0F172A !important; }
+.stApp, [data-testid="stAppViewContainer"], .main .block-container { background-color: #0B1929 !important; }
 
 /* Sidebar */
-section[data-testid="stSidebar"] { background-color: #1E293B !important; }
-section[data-testid="stSidebar"] * { color: #F1F5F9; }
-section[data-testid="stSidebar"] .stMarkdown { color: #F1F5F9; }
-section[data-testid="stSidebar"] label { color: #94A3B8 !important; }
-section[data-testid="stSidebar"] .stDivider { border-color: #334155 !important; }
+section[data-testid="stSidebar"] { background-color: #132338 !important; }
+section[data-testid="stSidebar"] * { color: #E8EDF2; }
+section[data-testid="stSidebar"] .stMarkdown { color: #E8EDF2; }
+section[data-testid="stSidebar"] label { color: #8BA3C4 !important; }
+section[data-testid="stSidebar"] .stDivider { border-color: #1E3161 !important; }
 
 /* All text */
-h1, h2, h3, h4, h5, h6 { color: #F1F5F9 !important; }
-.stMarkdown, .stMarkdown p, .stMarkdown li, .stMarkdown span, .stCaption, .stText { color: #CBD5E1 !important; }
+h1, h2, h3, h4, h5, h6 { color: #E8EDF2 !important; }
+.stMarkdown, .stMarkdown p, .stMarkdown li, .stMarkdown span, .stCaption, .stText { color: #B0C4D8 !important; }
 label, .stSelectbox label, .stTextInput label, .stTextArea label, .stNumberInput label,
-.stRadio label, .stCheckbox label, .stToggle label, .stDateInput label { color: #94A3B8 !important; }
+.stRadio label, .stCheckbox label, .stToggle label, .stDateInput label { color: #8BA3C4 !important; }
 
 /* Metrics */
-div[data-testid="stMetric"] label { color: #94A3B8 !important; }
-div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #F1F5F9 !important; }
-div[data-testid="stMetricDelta"] { color: #94A3B8 !important; }
+div[data-testid="stMetric"] label { color: #8BA3C4 !important; }
+div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #E8EDF2 !important; }
+div[data-testid="stMetricDelta"] { color: #8BA3C4 !important; }
 
 /* Inputs and selects */
 .stTextInput input, .stTextArea textarea, .stNumberInput input,
 .stSelectbox > div > div, .stMultiSelect > div > div,
 div[data-baseweb="input"] input, div[data-baseweb="textarea"] textarea {
-    background-color: #0F172A !important; color: #F1F5F9 !important;
-    border-color: #334155 !important;
+    background-color: #0B1929 !important; color: #E8EDF2 !important;
+    border-color: #1E3161 !important;
 }
-div[data-baseweb="select"] > div { background-color: #0F172A !important; color: #F1F5F9 !important; border-color: #334155 !important; }
-div[data-baseweb="popover"] > div { background-color: #1E293B !important; }
-div[data-baseweb="menu"] { background-color: #1E293B !important; }
-div[data-baseweb="menu"] li { color: #F1F5F9 !important; }
-div[data-baseweb="menu"] li:hover { background-color: #334155 !important; }
+div[data-baseweb="select"] > div { background-color: #0B1929 !important; color: #E8EDF2 !important; border-color: #1E3161 !important; }
+div[data-baseweb="popover"] > div { background-color: #132338 !important; }
+div[data-baseweb="menu"] { background-color: #132338 !important; }
+div[data-baseweb="menu"] li { color: #E8EDF2 !important; }
+div[data-baseweb="menu"] li:hover { background-color: #1E3161 !important; }
 
 /* Date input */
-div[data-baseweb="calendar"] { background-color: #1E293B !important; color: #F1F5F9 !important; }
+div[data-baseweb="calendar"] { background-color: #132338 !important; color: #E8EDF2 !important; }
 
 /* Tabs */
-.stTabs [data-baseweb="tab-list"] { background-color: #1E293B !important; border-bottom-color: #334155 !important; }
-.stTabs [data-baseweb="tab"] { color: #94A3B8 !important; }
-.stTabs [data-baseweb="tab"][aria-selected="true"] { color: #F1F5F9 !important; }
-.stTabs [data-baseweb="tab-panel"] { background-color: #0F172A !important; }
+.stTabs [data-baseweb="tab-list"] { background-color: #132338 !important; border-bottom-color: #1E3161 !important; }
+.stTabs [data-baseweb="tab"] { color: #8BA3C4 !important; }
+.stTabs [data-baseweb="tab"][aria-selected="true"] { color: #E8EDF2 !important; }
+.stTabs [data-baseweb="tab-panel"] { background-color: #0B1929 !important; }
 
 /* Expanders */
-div[data-testid="stExpander"] { border-color: #334155 !important; background-color: #1E293B !important; }
-div[data-testid="stExpander"] summary { color: #F1F5F9 !important; }
-div[data-testid="stExpander"] details > div { color: #CBD5E1 !important; }
+div[data-testid="stExpander"] { border-color: #1E3161 !important; background-color: #132338 !important; }
+div[data-testid="stExpander"] summary { color: #E8EDF2 !important; }
+div[data-testid="stExpander"] details > div { color: #B0C4D8 !important; }
 
 /* DataFrames / Tables */
-.stDataFrame, div[data-testid="stDataFrame"] { background-color: #1E293B !important; }
-div[data-testid="stDataFrame"] th { background-color: #0F172A !important; color: #F1F5F9 !important; }
-div[data-testid="stDataFrame"] td { color: #CBD5E1 !important; background-color: #1E293B !important; }
-div[data-testid="stDataFrame"] [data-testid="glideDataEditor"] { background-color: #1E293B !important; }
+.stDataFrame, div[data-testid="stDataFrame"] { background-color: #132338 !important; }
+div[data-testid="stDataFrame"] th { background-color: #0B1929 !important; color: #E8EDF2 !important; }
+div[data-testid="stDataFrame"] td { color: #B0C4D8 !important; background-color: #132338 !important; }
+div[data-testid="stDataFrame"] [data-testid="glideDataEditor"] { background-color: #132338 !important; }
 
 /* Buttons */
-.stButton > button[kind="secondary"] { background-color: #1E293B !important; color: #F1F5F9 !important; border-color: #334155 !important; }
-.stButton > button[kind="secondary"]:hover { background-color: #334155 !important; }
-.stDownloadButton > button { background-color: #1E293B !important; color: #F1F5F9 !important; border-color: #334155 !important; }
-.stDownloadButton > button:hover { background-color: #334155 !important; }
+.stButton > button[kind="secondary"] { background-color: #132338 !important; color: #E8EDF2 !important; border-color: #1E3161 !important; }
+.stButton > button[kind="secondary"]:hover { background-color: #1E3161 !important; }
+.stDownloadButton > button { background-color: #132338 !important; color: #E8EDF2 !important; border-color: #1E3161 !important; }
+.stDownloadButton > button:hover { background-color: #1E3161 !important; }
 
 /* Alerts */
-div[data-testid="stAlert"] { border-color: #334155 !important; }
-.stAlert > div { background-color: #1E293B !important; }
+div[data-testid="stAlert"] { border-color: #1E3161 !important; }
+.stAlert > div { background-color: #132338 !important; }
 
 /* Radio buttons */
-.stRadio > div { color: #F1F5F9 !important; }
-.stRadio label span { color: #F1F5F9 !important; }
+.stRadio > div { color: #E8EDF2 !important; }
+.stRadio label span { color: #E8EDF2 !important; }
 
 /* Toggle */
-.stToggle label span { color: #F1F5F9 !important; }
+.stToggle label span { color: #E8EDF2 !important; }
 
 /* File uploader */
-div[data-testid="stFileUploader"] { background-color: #1E293B !important; border-color: #334155 !important; }
-div[data-testid="stFileUploader"] label { color: #94A3B8 !important; }
-div[data-testid="stFileUploader"] span { color: #CBD5E1 !important; }
-div[data-testid="stFileUploader"] button { background-color: #334155 !important; color: #F1F5F9 !important; }
+div[data-testid="stFileUploader"] { background-color: #132338 !important; border-color: #1E3161 !important; }
+div[data-testid="stFileUploader"] label { color: #8BA3C4 !important; }
+div[data-testid="stFileUploader"] span { color: #B0C4D8 !important; }
+div[data-testid="stFileUploader"] button { background-color: #1E3161 !important; color: #E8EDF2 !important; }
 
 /* Dividers */
-hr, .stDivider { border-color: #334155 !important; }
+hr, .stDivider { border-color: #1E3161 !important; }
 
 /* Progress bar */
-.stProgress > div > div { background-color: #334155 !important; }
+.stProgress > div > div { background-color: #1E3161 !important; }
 
 /* Pagination / number input */
-.stNumberInput button { background-color: #334155 !important; color: #F1F5F9 !important; }
+.stNumberInput button { background-color: #1E3161 !important; color: #E8EDF2 !important; }
 
 /* Multiselect tags */
-span[data-baseweb="tag"] { background-color: #334155 !important; color: #F1F5F9 !important; }
+span[data-baseweb="tag"] { background-color: #1E3161 !important; color: #E8EDF2 !important; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #0F172A; }
-::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+::-webkit-scrollbar-track { background: #0B1929; }
+::-webkit-scrollbar-thumb { background: #1E3161; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
 /* HTML tables (urgency table etc.) */
-table { color: #CBD5E1 !important; }
-table th { background-color: #1E293B !important; color: #F1F5F9 !important; border-color: #334155 !important; }
-table td { background-color: #0F172A !important; color: #CBD5E1 !important; border-color: #334155 !important; }
+table { color: #B0C4D8 !important; }
+table th { background-color: #132338 !important; color: #E8EDF2 !important; border-color: #1E3161 !important; }
+table td { background-color: #0B1929 !important; color: #B0C4D8 !important; border-color: #1E3161 !important; }
 
 ''' if dark else ''}
 
 .kpi-card {{
-    background: var(--bg-card); border-radius: 12px; padding: 1.25rem 1.5rem;
+    background: var(--bg-card); border-radius: 15px; padding: 1.25rem 1.5rem;
     border: 1px solid var(--border); box-shadow: 0 1px 3px var(--shadow);
     transition: box-shadow 0.2s ease;
 }}
@@ -206,7 +205,7 @@ table td { background-color: #0F172A !important; color: #CBD5E1 !important; bord
 .badge-pending {{ background: {'#3B0764' if dark else '#F3E8FF'}; color: {'#C084FC' if dark else '#6B21A8'}; }}
 
 .val-card {{
-    background: var(--bg-card); border-radius: 12px; padding: 1.5rem;
+    background: var(--bg-card); border-radius: 15px; padding: 1.5rem;
     border-left: 4px solid; margin-bottom: 1rem; box-shadow: 0 1px 3px var(--shadow);
 }}
 .val-card p {{ color: var(--text-secondary) !important; }}
@@ -225,10 +224,10 @@ table td { background-color: #0F172A !important; color: #CBD5E1 !important; bord
 }}
 
 .upload-zone {{
-    border: 2px dashed {'#475569' if dark else '#CBD5E1'}; border-radius: 12px; padding: 2rem;
+    border: 2px dashed {'#475569' if dark else '#B0C4D8'}; border-radius: 15px; padding: 2rem;
     text-align: center; background: var(--bg-secondary); transition: border-color 0.2s;
 }}
-.upload-zone:hover {{ border-color: #2563EB; }}
+.upload-zone:hover {{ border-color: #1E3161; }}
 .upload-zone p {{ color: var(--text-secondary) !important; }}
 
 .method-badge {{
@@ -366,14 +365,24 @@ def to_multi_sheet_excel_bytes(sheets: dict[str, pd.DataFrame]) -> bytes:
 # Sidebar
 # ─────────────────────────────────────────────
 with st.sidebar:
-    title_color = "#F1F5F9" if dark else "#1E293B"
-    sub_color = "#94A3B8" if dark else "#475569"
+    # Calibrium logo
+    logo_path = os.path.join(os.path.dirname(__file__), "assets",
+                             "calibrium_logo_white.png" if dark else "calibrium_logo.png")
+    if os.path.exists(logo_path):
+        logo_b64 = base64.b64encode(open(logo_path, "rb").read()).decode()
+        st.markdown(
+            f'<div style="padding: 0.75rem 0 0.5rem 0;">'
+            f'<img src="data:image/png;base64,{logo_b64}" style="height: 38px; margin-bottom: 0.25rem;" alt="Calibrium">'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+    sub_color = "#8BA3C4" if dark else "#5A6B7F"
     st.markdown(f"""
-    <div style="padding: 1rem 0;">
-        <h1 style="font-size: 1.4rem; font-weight: 700; color: {title_color}; margin: 0;">
-            <span style="color: #2563EB;" aria-hidden="true">&#9632;</span> Project Sentinel
+    <div style="padding: 0 0 0.5rem 0;">
+        <h1 style="font-size: 1.2rem; font-weight: 700; color: {'#E8EDF2' if dark else '#1E3161'}; margin: 0;">
+            Project Sentinel
         </h1>
-        <p style="font-size: 0.8rem; color: {sub_color}; margin: 0.25rem 0 0 0;">Treasury Operations Automation</p>
+        <p style="font-size: 0.75rem; color: {sub_color}; margin: 0.2rem 0 0 0;">Treasury Operations Automation</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -527,16 +536,16 @@ if page == "Dashboard":
         fig_bar = go.Figure()
         fig_bar.add_trace(go.Bar(
             name="Funded", x=ct_filtered["Fund Name"], y=ct_filtered["Total Funded YTD"],
-            marker_color="#2563EB", hovertemplate="EUR %{y:,.0f}<extra>Funded</extra>"
+            marker_color="#1E3161", hovertemplate="EUR %{y:,.0f}<extra>Funded</extra>"
         ))
         fig_bar.add_trace(go.Bar(
             name="Remaining", x=ct_filtered["Fund Name"], y=ct_filtered["Remaining Open Commitment"],
-            marker_color="#93C5FD", hovertemplate="EUR %{y:,.0f}<extra>Remaining</extra>"
+            marker_color="#DDE9E8", hovertemplate="EUR %{y:,.0f}<extra>Remaining</extra>"
         ))
-        chart_bg = "#1E293B" if dark else "white"
-        chart_paper = "#0F172A" if dark else "white"
-        chart_font = "#F1F5F9" if dark else "#1E293B"
-        chart_grid = "#334155" if dark else "#E2E8F0"
+        chart_bg = "#132338" if dark else "white"
+        chart_paper = "#0B1929" if dark else "white"
+        chart_font = "#E8EDF2" if dark else "#132338"
+        chart_grid = "#1E3161" if dark else "#E0E0E0"
         fig_bar.update_layout(
             barmode="stack", height=380,
             margin=dict(l=20, r=20, t=10, b=100),
@@ -553,7 +562,7 @@ if page == "Dashboard":
         vintage_agg.columns = ["Vintage", "Total"]
         fig_pie = px.pie(
             vintage_agg, values="Total", names="Vintage",
-            color_discrete_sequence=["#2563EB", "#3B82F6", "#93C5FD"],
+            color_discrete_sequence=["#1E3161", "#2A4080", "#DDE9E8"],
             hole=0.45,
         )
         fig_pie.update_traces(textinfo="label+percent", hovertemplate="%{label}<br>EUR %{value:,.0f}<extra></extra>")
@@ -605,11 +614,11 @@ if page == "Dashboard":
             fig_timeline.update_layout(
                 height=280,
                 margin=dict(l=20, r=20, t=10, b=40),
-                plot_bgcolor="#1E293B" if dark else "white",
-                paper_bgcolor="#0F172A" if dark else "white",
-                font=dict(color="#F1F5F9" if dark else "#1E293B"),
-                yaxis=dict(tickformat=",.0s", gridcolor="#334155" if dark else "#E2E8F0"),
-                xaxis=dict(gridcolor="#334155" if dark else "#E2E8F0"),
+                plot_bgcolor="#132338" if dark else "white",
+                paper_bgcolor="#0B1929" if dark else "white",
+                font=dict(color="#E8EDF2" if dark else "#132338"),
+                yaxis=dict(tickformat=",.0s", gridcolor="#1E3161" if dark else "#E0E0E0"),
+                xaxis=dict(gridcolor="#1E3161" if dark else "#E0E0E0"),
             )
             st.plotly_chart(fig_timeline, use_container_width=True)
 
@@ -769,13 +778,13 @@ if page == "Dashboard":
                 fig_cf.add_trace(go.Scatter(
                     x=cf_df["date"], y=cf_df["net_cash_flow"],
                     name="Net Cash Flow",
-                    line=dict(color="#2563EB", width=2, dash="dash"),
+                    line=dict(color="#1E3161", width=2, dash="dash"),
                     hovertemplate="EUR %{y:,.0f}<extra>Net</extra>",
                 ))
-                cf_bg = "#1E293B" if dark else "white"
-                cf_paper = "#0F172A" if dark else "white"
-                cf_font = "#F1F5F9" if dark else "#1E293B"
-                cf_grid = "#334155" if dark else "#E2E8F0"
+                cf_bg = "#132338" if dark else "white"
+                cf_paper = "#0B1929" if dark else "white"
+                cf_font = "#E8EDF2" if dark else "#132338"
+                cf_grid = "#1E3161" if dark else "#E0E0E0"
                 fig_cf.update_layout(
                     height=400,
                     margin=dict(l=20, r=20, t=10, b=40),
