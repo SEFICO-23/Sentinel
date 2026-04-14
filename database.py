@@ -5,8 +5,9 @@ Replaces in-memory session state with durable storage.
 import sqlite3
 import os
 import json
+import statistics
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from contextlib import contextmanager
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "sentinel.db")
@@ -261,6 +262,16 @@ def get_executed_calls():
     with get_db() as conn:
         rows = conn.execute(
             "SELECT investor, fund_name, amount, value_date, source FROM executed_calls ORDER BY id"
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_executed_calls_for_fund(fund_name: str) -> list:
+    """Get all executed calls for a specific fund."""
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT amount, value_date FROM executed_calls WHERE fund_name = ? ORDER BY id",
+            (fund_name,)
         ).fetchall()
         return [dict(r) for r in rows]
 
@@ -1061,3 +1072,167 @@ def get_cumulative_cash_flows() -> list[dict]:
             "net_cash_flow": cum_dists - cum_calls,
         })
     return result
+
+
+def get_historical_call_patterns() -> list[dict]:
+    """Analyze historical call patterns per fund.
+
+    For each fund with executed calls, calculate average amount, average interval
+    between calls, standard deviations, and remaining commitment info.
+    """
+    with get_db() as conn:
+        funds = conn.execute(
+            "SELECT DISTINCT fund_name FROM executed_calls"
+        ).fetchall()
+
+        patterns = []
+        for fund_row in funds:
+            fund = fund_row["fund_name"]
+            calls = conn.execute(
+                "SELECT amount, value_date FROM executed_calls WHERE fund_name = ? ORDER BY id",
+                (fund,)
+            ).fetchall()
+
+            amounts = []
+            dates = []
+            for c in calls:
+                amounts.append(c["amount"])
+                try:
+                    dates.append(datetime.strptime(c["value_date"].strip(), "%d.%m.%Y"))
+                except (ValueError, AttributeError):
+                    pass
+
+            if not amounts:
+                continue
+
+            avg_amount = statistics.mean(amounts)
+            std_amount = statistics.stdev(amounts) if len(amounts) >= 2 else 0.0
+
+            intervals = []
+            sorted_dates = sorted(dates)
+            for i in range(1, len(sorted_dates)):
+                delta = (sorted_dates[i] - sorted_dates[i - 1]).days
+                if delta > 0:
+                    intervals.append(delta)
+
+            avg_interval = statistics.mean(intervals) if intervals else 0.0
+            std_interval = statistics.stdev(intervals) if len(intervals) >= 2 else 0.0
+
+            commitment = conn.execute(
+                "SELECT remaining_open_commitment, total_commitment FROM commitment_tracker WHERE fund_name = ?",
+                (fund,)
+            ).fetchone()
+
+            patterns.append({
+                "fund_name": fund,
+                "num_calls": len(amounts),
+                "avg_amount": avg_amount,
+                "std_amount": std_amount,
+                "avg_interval_days": avg_interval,
+                "std_interval_days": std_interval,
+                "last_call_date": max(sorted_dates) if sorted_dates else None,
+                "remaining_commitment": commitment["remaining_open_commitment"] if commitment else 0,
+                "total_commitment": commitment["total_commitment"] if commitment else 0,
+            })
+        return patterns
+
+
+def generate_cash_forecast(months_ahead: int = 12) -> dict:
+    """Generate monthly cash outflow projections based on historical patterns.
+
+    Returns dict with monthly_forecast list, fund_forecasts list,
+    and total_3m/total_6m/total_12m aggregates.
+    """
+    patterns = get_historical_call_patterns()
+    today = datetime.now()
+
+    # Build month buckets
+    month_keys = []
+    for i in range(months_ahead):
+        m = today.month + i
+        y = today.year + (m - 1) // 12
+        m = ((m - 1) % 12) + 1
+        month_keys.append(f"{y}-{m:02d}")
+
+    monthly_expected = {k: 0.0 for k in month_keys}
+    monthly_low = {k: 0.0 for k in month_keys}
+    monthly_high = {k: 0.0 for k in month_keys}
+
+    fund_forecasts = []
+
+    for p in patterns:
+        remaining = p["remaining_commitment"]
+        if remaining <= 0:
+            continue
+
+        avg_amt = p["avg_amount"]
+        std_amt = p["std_amount"] if p["std_amount"] > 0 else avg_amt * 0.1
+        avg_interval = p["avg_interval_days"]
+        last_date = p["last_call_date"]
+
+        # Funds with only 1 call: flag as insufficient data
+        if p["num_calls"] < 2 or avg_interval <= 0 or last_date is None:
+            est_amount = min(avg_amt, remaining)
+            fund_forecasts.append({
+                "fund_name": p["fund_name"],
+                "next_call_est": "Insufficient data",
+                "est_amount": est_amount,
+                "remaining": remaining,
+                "runway_months": None,
+            })
+            continue
+
+        # Runway calculation
+        calls_left = remaining / avg_amt if avg_amt > 0 else 0
+        runway_months = round(calls_left * avg_interval / 30, 1)
+
+        # Project future calls — advance past-due projections to today
+        next_date = last_date + timedelta(days=avg_interval)
+        while next_date < today:
+            next_date += timedelta(days=avg_interval)
+        est_amount = min(avg_amt, remaining)
+
+        fund_forecasts.append({
+            "fund_name": p["fund_name"],
+            "next_call_est": next_date.strftime("%b %Y"),
+            "est_amount": est_amount,
+            "remaining": remaining,
+            "runway_months": runway_months,
+        })
+
+        # Fill monthly buckets with projected calls until commitment exhausted
+        cumulative_called = 0.0
+        proj_date = next_date
+        end_date = today + timedelta(days=months_ahead * 30)
+        while proj_date <= end_date and cumulative_called < remaining:
+            mk = f"{proj_date.year}-{proj_date.month:02d}"
+            if mk in monthly_expected:
+                call_amt = min(avg_amt, remaining - cumulative_called)
+                low_amt = max(0, call_amt - std_amt)
+                high_amt = min(call_amt + std_amt, remaining - cumulative_called)
+                monthly_expected[mk] += call_amt
+                monthly_low[mk] += low_amt
+                monthly_high[mk] += high_amt
+                cumulative_called += call_amt
+            proj_date += timedelta(days=avg_interval)
+
+    monthly_forecast = []
+    for mk in month_keys:
+        monthly_forecast.append({
+            "month": mk,
+            "expected": round(monthly_expected[mk], 2),
+            "low": round(monthly_low[mk], 2),
+            "high": round(monthly_high[mk], 2),
+        })
+
+    total_3m = sum(m["expected"] for m in monthly_forecast[:3])
+    total_6m = sum(m["expected"] for m in monthly_forecast[:6])
+    total_12m = sum(m["expected"] for m in monthly_forecast[:12])
+
+    return {
+        "monthly_forecast": monthly_forecast,
+        "fund_forecasts": fund_forecasts,
+        "total_3m": total_3m,
+        "total_6m": total_6m,
+        "total_12m": total_12m,
+    }

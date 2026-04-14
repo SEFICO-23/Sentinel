@@ -632,7 +632,7 @@ if page == "Dashboard":
     st.markdown("")
 
     # Tables in tabs
-    tab_tracker, tab_upcoming, tab_executed, tab_portfolio = st.tabs(["Commitment Tracker", "Upcoming Calls", "Executed Calls", "Portfolio Summary"])
+    tab_tracker, tab_upcoming, tab_executed, tab_portfolio, tab_forecast = st.tabs(["Commitment Tracker", "Upcoming Calls", "Executed Calls", "Portfolio Summary", "Cash Forecast"])
 
     with tab_tracker:
         display_ct = ct_filtered.copy()
@@ -851,6 +851,116 @@ if page == "Dashboard":
                         st.success(f"NAV of EUR {nav_amount:,.0f} recorded for {nav_fund}.")
                         st.rerun()
 
+    with tab_forecast:
+        forecast = db.generate_cash_forecast(months_ahead=12)
+        monthly = forecast["monthly_forecast"]
+
+        # KPI cards
+        fk1, fk2, fk3 = st.columns(3)
+        for col, label, value in [
+            (fk1, "3-Month Outlook", forecast["total_3m"]),
+            (fk2, "6-Month Outlook", forecast["total_6m"]),
+            (fk3, "12-Month Outlook", forecast["total_12m"]),
+        ]:
+            if value >= 1e6:
+                display_val = f"EUR {value/1e6:,.1f}M"
+            else:
+                display_val = f"EUR {value:,.0f}"
+            col.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-label">{esc(label)}</div>
+                <div class="kpi-value">{esc(display_val)}</div>
+                <div class="kpi-sub">projected outflows</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("")
+
+        # Forecast line chart
+        if monthly and any(m["expected"] > 0 for m in monthly):
+            st.markdown('<div class="section-header">Monthly Cash Outflow Forecast</div>', unsafe_allow_html=True)
+            fc_months = [m["month"] for m in monthly]
+            fc_expected = [m["expected"] for m in monthly]
+            fc_low = [m["low"] for m in monthly]
+            fc_high = [m["high"] for m in monthly]
+
+            fig_fc = go.Figure()
+            # Low band (invisible base for fill)
+            fig_fc.add_trace(go.Scatter(
+                x=fc_months, y=fc_low,
+                name="Low Estimate",
+                line=dict(color="rgba(30,49,97,0.3)", width=1, dash="dash"),
+                hovertemplate="EUR %{y:,.0f}<extra>Low</extra>",
+            ))
+            # High band with fill to low
+            fig_fc.add_trace(go.Scatter(
+                x=fc_months, y=fc_high,
+                name="High Estimate",
+                line=dict(color="rgba(30,49,97,0.3)", width=1, dash="dash"),
+                fill="tonexty",
+                fillcolor="rgba(30,49,97,0.1)",
+                hovertemplate="EUR %{y:,.0f}<extra>High</extra>",
+            ))
+            # Expected line on top
+            fig_fc.add_trace(go.Scatter(
+                x=fc_months, y=fc_expected,
+                name="Expected",
+                line=dict(color="#1E3161", width=3),
+                hovertemplate="EUR %{y:,.0f}<extra>Expected</extra>",
+            ))
+
+            chart_bg = "#132338" if dark else "white"
+            chart_paper = "#0B1929" if dark else "white"
+            chart_font = "#E8EDF2" if dark else "#1E3161"
+            chart_grid = "#1E3161" if dark else "#E0E0E0"
+            fig_fc.update_layout(
+                height=400,
+                margin=dict(l=20, r=20, t=10, b=40),
+                legend=dict(orientation="h", y=1.08, font=dict(color=chart_font)),
+                yaxis=dict(title="EUR", tickformat=",.0s", gridcolor=chart_grid, tickfont=dict(color=chart_font), title_font=dict(color=chart_font)),
+                xaxis=dict(title="Month", gridcolor=chart_grid, tickfont=dict(color=chart_font), title_font=dict(color=chart_font)),
+                plot_bgcolor=chart_bg, paper_bgcolor=chart_paper, font=dict(color=chart_font),
+            )
+            st.plotly_chart(fig_fc, use_container_width=True)
+        else:
+            st.info("No forecast data available — no funds with historical call patterns found.")
+
+        # Per-fund forecast table
+        fund_fc = forecast["fund_forecasts"]
+        if fund_fc:
+            st.markdown("")
+            st.markdown('<div class="section-header">Per-Fund Forecast</div>', unsafe_allow_html=True)
+            rows_html = ""
+            for f in fund_fc:
+                amt_str = f"EUR {f['est_amount']:,.0f}" if f["est_amount"] else "–"
+                rem_str = f"EUR {f['remaining']:,.0f}" if f["remaining"] else "–"
+                runway_str = f"{f['runway_months']:.0f} months" if f["runway_months"] is not None else "Insufficient data"
+                rows_html += (
+                    f"<tr style='border-bottom:1px solid var(--border);'>"
+                    f"<td style='padding:0.5rem;'>{esc(f['fund_name'])}</td>"
+                    f"<td style='padding:0.5rem;'>{esc(f['next_call_est'])}</td>"
+                    f"<td style='padding:0.5rem;'>{esc(amt_str)}</td>"
+                    f"<td style='padding:0.5rem;'>{esc(rem_str)}</td>"
+                    f"<td style='padding:0.5rem;'>{esc(runway_str)}</td>"
+                    f"</tr>"
+                )
+            st.markdown(f"""
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                        <th style="padding:0.5rem; color:var(--text-secondary);">Fund</th>
+                        <th style="padding:0.5rem; color:var(--text-secondary);">Next Est. Call</th>
+                        <th style="padding:0.5rem; color:var(--text-secondary);">Est. Amount</th>
+                        <th style="padding:0.5rem; color:var(--text-secondary);">Remaining</th>
+                        <th style="padding:0.5rem; color:var(--text-secondary);">Runway</th>
+                    </tr>
+                </thead>
+                <tbody style="color:var(--text-primary);">
+                    {rows_html}
+                </tbody>
+            </table>
+            """, unsafe_allow_html=True)
+
     # Full Report download (all sheets combined)
     st.divider()
     today_str = datetime.now().strftime('%Y%m%d')
@@ -993,6 +1103,29 @@ elif page == "Process Capital Call":
                 vc2.markdown(f"**Wire Check:** {'PASS' if wc['passed'] else 'FAIL'}")
                 if wc.get("message"):
                     vc2.caption(wc["message"])
+
+                # Anomaly detection per batch item
+                if v.get("fund_name_matched") and v.get("amount"):
+                    from anomaly_detector import detect_anomalies
+                    batch_anomaly = detect_anomalies(
+                        v["fund_name_matched"],
+                        v["amount"],
+                        v.get("due_date")
+                    )
+                    risk_colors = {"low": "badge-pass", "medium": "badge-warn", "high": "badge-fail"}
+                    risk_class = risk_colors.get(batch_anomaly["overall_risk"], "badge-info")
+                    st.markdown(
+                        f'**Anomaly Risk:** <span class="badge {risk_class}">'
+                        f'{batch_anomaly["overall_risk"].upper()} ({batch_anomaly["overall_score"]}/100)</span>',
+                        unsafe_allow_html=True,
+                    )
+                    ba1, ba2, ba3 = st.columns(3)
+                    for bcol, bsignal in zip([ba1, ba2, ba3], batch_anomaly["signals"]):
+                        with bcol:
+                            bicon = "&#10003;" if bsignal["severity"] == "low" else ("&#9888;" if bsignal["severity"] == "medium" else "&#10007;")
+                            st.markdown(f"""<div style="font-size:0.85rem;">{bicon} <strong>{esc(bsignal['type'].title())}</strong>: {esc(bsignal['message'])}</div>""", unsafe_allow_html=True)
+                    if batch_anomaly["overall_risk"] == "high":
+                        st.warning("This capital call has unusual statistical characteristics. Review the anomaly signals carefully before approving.")
 
         # Bulk approval workflow
         if approved:
@@ -1258,9 +1391,47 @@ elif page == "Process Capital Call":
                     </div>
                     """, unsafe_allow_html=True)
 
+        # Anomaly Detection
+        if validation["fund_name_matched"]:
+            from anomaly_detector import detect_anomalies
+            anomaly = detect_anomalies(
+                validation["fund_name_matched"],
+                validation["amount"],
+                validation.get("due_date")
+            )
+
+            st.divider()
+            st.markdown('<div class="section-header">3. Anomaly Analysis</div>', unsafe_allow_html=True)
+
+            # Overall risk badge
+            risk_colors = {"low": "badge-pass", "medium": "badge-warn", "high": "badge-fail"}
+            risk_class = risk_colors.get(anomaly["overall_risk"], "badge-info")
+            st.markdown(
+                f'Anomaly Risk: <span class="badge {risk_class}">'
+                f'{anomaly["overall_risk"].upper()} ({anomaly["overall_score"]}/100)</span>',
+                unsafe_allow_html=True,
+            )
+
+            # Signal cards (3 columns)
+            a1, a2, a3 = st.columns(3)
+            for col, signal in zip([a1, a2, a3], anomaly["signals"]):
+                with col:
+                    severity_class = "val-pass" if signal["severity"] == "low" else ("val-fail" if signal["severity"] == "high" else "val-card")
+                    icon = "&#10003;" if signal["severity"] == "low" else ("&#9888;" if signal["severity"] == "medium" else "&#10007;")
+                    st.markdown(f"""
+                    <div class="val-card {severity_class}" style="border-left-color: {'#27AE60' if signal['severity'] == 'low' else ('#F39C12' if signal['severity'] == 'medium' else '#E74C3C')};">
+                        <h4 style="margin:0 0 0.3rem 0; font-size: 0.9rem;">{icon} {esc(signal['type'].title())} Check</h4>
+                        <p style="margin:0 0 0.2rem 0; font-size: 0.85rem; color: var(--text-secondary);">{esc(signal['message'])}</p>
+                        <p style="margin:0; font-size: 0.75rem; color: var(--text-muted);">{esc(signal['detail'])}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            if anomaly["overall_risk"] == "high":
+                st.warning("This capital call has unusual statistical characteristics. Review the anomaly signals carefully before approving.")
+
         # 4-Eye Approval Workflow
         st.divider()
-        st.markdown('<div class="section-header">3. Approval Workflow (4-Eye Check)</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">4. Approval Workflow (4-Eye Check)</div>', unsafe_allow_html=True)
 
         if status == "APPROVED":
             st.info("This call has passed all automated checks. A second reviewer must confirm before execution.")
@@ -1797,6 +1968,28 @@ elif page == "Audit Log":
         s3.metric("Escalated", escalated_count)
 
         st.caption(f"Showing {len(filtered)} of {total_count} records")
+
+        # ── Generate Regulatory Audit Report ──
+        with st.expander("Generate Regulatory Audit Report"):
+            report_col1, report_col2 = st.columns(2)
+            with report_col1:
+                report_date_from = st.date_input("From", value=datetime(2026, 1, 1), key="report_from")
+            with report_col2:
+                report_date_to = st.date_input("To", value=datetime.now(), key="report_to")
+
+            if st.button("Generate PDF Report", type="primary"):
+                with st.spinner("Generating audit report..."):
+                    from audit_report import generate_audit_report
+                    pdf_bytes = generate_audit_report(
+                        date_from=report_date_from.strftime("%Y-%m-%d"),
+                        date_to=report_date_to.strftime("%Y-%m-%d"),
+                    )
+                st.download_button(
+                    "Download Audit Report PDF",
+                    data=pdf_bytes,
+                    file_name=f"sentinel_audit_report_{report_date_from.strftime('%Y%m%d')}_{report_date_to.strftime('%Y%m%d')}.pdf",
+                    mime="application/pdf",
+                )
 
         audit_export = db.export_audit_log_df()
         st.download_button(
