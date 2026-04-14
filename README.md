@@ -59,10 +59,23 @@ The system enforces that the reviewer must be a **different person** from the su
 | Zero-amount guard | Missing or unparseable amount fields |
 | Wire change management | Unauthorized changes to banking details |
 | Commitment amendments | Formal workflow for increasing commitments |
+| ML anomaly detection | Unusual amount, timing, or frequency patterns (z-score based) |
 
-### 5. Reporting & Audit
+### 5. ML Anomaly Detection
+
+Every capital call is scored against historical patterns on three dimensions:
+
+- **Amount anomaly** -- z-score deviation from the fund's historical average call size
+- **Timing anomaly** -- call arrives much sooner/later than the fund's historical interval
+- **Frequency anomaly** -- burst detection (too many calls for one fund in 30/90 days)
+
+Anomalies are **informational** (warn but don't block approval). Each signal shows severity (low/medium/high) and a 0-100 score. A high-anomaly call triggers a warning banner for the reviewer.
+
+### 6. Reporting & Audit
 - **Dashboard** with KPI cards, charts, vintage filters, cash position forecasting
+- **Cash forecast** with 12-month projection, confidence bands, per-fund runway analysis
 - **Audit log** with filtering, pagination, and full validation trail
+- **Regulatory audit PDF** -- branded multi-page report for external auditors (date-range filtered)
 - **Excel export** (single sheet or multi-sheet report)
 - **Email confirmation** generation with optional SMTP sending
 - **PDF archive** with downloadable originals from audit log
@@ -72,19 +85,19 @@ The system enforces that the reviewer must be a **different person** from the su
 ## Architecture
 
 ```
-app.py                 Streamlit UI (pages, routing, theme)
+app.py                   Streamlit UI (pages, routing, theme)
   |
-  +-- pages/           Page modules (dashboard, process, audit, etc.)
-  |
-  +-- database.py      SQLite persistence (WAL mode, atomic transactions)
-  +-- pdf_extractor.py Regex-based PDF parser (multi-language)
-  +-- llm_extractor.py Claude API integration + smart fallback
+  +-- database.py        SQLite persistence (WAL mode, atomic transactions)
+  +-- pdf_extractor.py   Regex-based PDF parser (multi-language)
+  +-- llm_extractor.py   Claude API integration + smart fallback
   +-- validation_engine.py  Commitment + wire checks, fuzzy matching
-  +-- email_sender.py  SMTP email sending
-  +-- data_loader.py   Excel seed data ingestion
+  +-- anomaly_detector.py   Statistical anomaly scoring (amount/timing/frequency)
+  +-- audit_report.py    Regulatory PDF report generator (ReportLab)
+  +-- email_sender.py    SMTP email sending
+  +-- data_loader.py     Excel seed data ingestion
   |
-  +-- sentinel.db      SQLite database (auto-created)
-  +-- archive/         Stored PDF originals
+  +-- sentinel.db        SQLite database (auto-created)
+  +-- archive/           Stored PDF originals
 ```
 
 ### Database Schema
@@ -148,6 +161,9 @@ The system is tested against 4 capital call notices with deliberately planted va
 | Excel export | Single or multi-sheet reports with formatted data |
 | Email integration | SMTP sending with HTML templates |
 | Audit log search | Filter by date, fund, status, reviewer with pagination |
+| Cash forecasting | 12-month projection with confidence bands, per-fund runway |
+| Regulatory audit PDF | Calibrium-branded multi-page report for external auditors |
+| ML anomaly detection | Z-score amount, timing interval, frequency burst analysis |
 
 ---
 
@@ -169,6 +185,7 @@ pytest tests/ -v
 - **pdfplumber** -- PDF text extraction
 - **rapidfuzz** -- Fuzzy string matching
 - **openpyxl** -- Excel read/write
+- **ReportLab** -- PDF report generation
 - **Anthropic SDK** -- Claude API for LLM extraction (optional)
 
 ---
@@ -177,17 +194,11 @@ pytest tests/ -v
 
 ```
 Project Sentinel/
-+-- app.py                          # Main application
-+-- pages/                          # Page modules
-|   +-- dashboard.py
-|   +-- process_capital_call.py
-|   +-- wire_instructions.py
-|   +-- audit_log.py
-|   +-- amendments.py
-|   +-- gp_contacts.py
-|   +-- portfolio.py
-+-- database.py                     # SQLite persistence layer
-+-- pdf_extractor.py                # Regex PDF parser
++-- app.py                          # Main application (~2,000 lines)
++-- database.py                     # SQLite persistence layer (~1,200 lines)
++-- anomaly_detector.py             # ML anomaly scoring (amount/timing/frequency)
++-- audit_report.py                 # Regulatory PDF report generator
++-- pdf_extractor.py                # Regex PDF parser (multi-language)
 +-- llm_extractor.py                # LLM extraction with fallback
 +-- validation_engine.py            # Risk control checks
 +-- email_sender.py                 # SMTP integration

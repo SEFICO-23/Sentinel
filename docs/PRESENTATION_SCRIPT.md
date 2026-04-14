@@ -70,13 +70,15 @@
 
 ## SLIDE 5: Key Features
 
-> Beyond the core workflow, we've built 12 additional features that make this production-ready:
+> Beyond the core workflow, we've built 18 features that make this production-ready:
 
 > Starting from the top left: **AI Extraction** with the dual-mode parser I mentioned. **Batch Upload** for quarter-end processing. **4-Eye Approval** with role-based access control. And **Dark/Light Mode** because our team works late sometimes.
 
 > On the second row: **Wire Management** with a dual-authorization workflow for updating banking details -- because changing an IBAN should be just as controlled as approving a payment. **Commitment Amendments** for when a GP call exceeds the limit. **Portfolio Metrics** including TVPI and DPI tracking. And a full **Audit Trail** with search, filter, and PDF archive.
 
-> Bottom row: **Multi-Language PDF support** -- the regex parser handles German, French, Italian, and Spanish notices. **Due Date Alerts** with color-coded urgency badges. **Excel Export** for multi-sheet reports. And **Duplicate Detection** that catches both exact matches and near-duplicates.
+> Third row: **Multi-Language PDF support** -- the regex parser handles German, French, Italian, and Spanish notices. **Due Date Alerts** with color-coded urgency badges. **Excel Export** for multi-sheet reports. And **Duplicate Detection** that catches both exact matches and near-duplicates.
+
+> And three advanced analytics features: **Cash Position Forecasting** that projects the next 12 months of capital needs based on historical call patterns. **ML Anomaly Detection** that scores every incoming call on three dimensions -- amount deviation, timing patterns, and call frequency -- to flag statistically unusual activity. And **Regulatory Audit PDF Export** that generates a branded, multi-page report ready for external auditors, with executive summary, detailed call logs, and wire change history.
 
 **[No need to read every feature -- highlight 3-4 that matter most to your audience]**
 
@@ -132,13 +134,15 @@
 > We've organized future development into three phases.
 
 > **Now -- things we can add immediately:**
-> OCR for scanned PDFs, so we can handle notices that arrive as scanned images rather than digital PDFs. Multi-currency support with live FX rates, since some GPs send notices in USD or GBP. Direct SMTP email sending instead of just generating templates. And Excel export reports, which are already partially built.
+> OCR for scanned PDFs, so we can handle notices that arrive as scanned images rather than digital PDFs. Multi-currency support with live FX rates, since some GPs send notices in USD or GBP. And Slack/Teams notifications when a capital call is due or fails validation.
 
 > **Next -- medium-term priorities:**
-> Real authentication via Azure AD or SSO, replacing the current user selector dropdown. Cash position forecasting based on commitment schedules. Slack or Teams notifications when a capital call is due or fails validation. And regulatory-compliant PDF audit reports for external auditors.
+> Real authentication via Azure AD or SSO, replacing the current user selector dropdown. Direct API integration with GP systems like eFront or Investran, so we receive capital calls electronically instead of parsing PDFs.
 
 > **Future -- our long-term vision:**
-> Direct API integration with GP systems like eFront or Investran, so we receive capital calls electronically instead of parsing PDFs. Machine learning anomaly detection to flag unusual call patterns. SWIFT MT103 payment message generation for straight-through processing. And mobile push notifications for reviewers who need to approve on the go.
+> SWIFT MT103 payment message generation for straight-through processing. And mobile push notifications for reviewers who need to approve on the go.
+
+> Note that cash forecasting, ML anomaly detection, and regulatory audit PDF export were originally on this roadmap -- they've already been delivered and are live in the system you'll see in the demo.
 
 **[Pause, advance]**
 
@@ -152,7 +156,7 @@
 
 > The system has processed **34+ historical payments** and has **50 automated tests** covering every critical path.
 
-> The PDF parser supports **5 languages** out of the box, and we've delivered **15 distinct features** in total.
+> The PDF parser supports **5 languages** out of the box, and we've delivered **18 distinct features** in total, including cash forecasting, ML anomaly detection, and regulatory audit PDF export.
 
 **[Keep this slide brief -- the numbers speak for themselves]**
 
@@ -202,22 +206,32 @@
 
 > "The progress bar runs through all four. Here's the summary table: Notice 3 and 4 are ready to approve, Notice 1 and 2 are rejected. I can expand each one to see the full validation details."
 
-**5. Dark Mode (~10 sec)**
+**5. Anomaly Detection (~30 sec)**
+> "Notice something new here -- below the validation results there's an Anomaly Analysis section. The system scored this call on three dimensions: amount deviation, timing patterns, and call frequency. For GT Partners V, the timing signal flagged this as medium risk because the call arrived much sooner than the historical average interval."
+
+**6. Cash Forecast (~30 sec)**
+> "On the Dashboard, there's now a Cash Forecast tab. It projects the next 12 months of cash needs based on historical call patterns for each fund, with confidence bands showing the range of estimates."
+
+**7. Dark Mode (~10 sec)**
 > "And for those late-night quarter-end sessions..."
 
 > [Toggle dark mode]
 
 > "Full dark mode support across every page."
 
-**6. Audit Log (~30 sec)**
-> "Finally, the audit log. Everything we just did is recorded here -- I can filter by status, fund, reviewer, or date range. And I can download the full audit trail as an Excel file."
+**8. Audit Log + PDF Report (~1 min)**
+> "The audit log shows everything we just did. I can filter by status, fund, reviewer, or date range. I can download as Excel. And new -- I can generate a full Regulatory Audit PDF report."
+
+> [Click Generate Audit Report, set date range, generate]
+
+> "This creates a branded, multi-page PDF with executive summary, detailed call logs, wire change history, and user activity -- ready to hand to an external auditor."
 
 ---
 
 ## Q&A Cheat Sheet
 
 ### "How long did this take to build?"
-> The core system (extraction, validation, approval workflow, database) was built in one intensive sprint. The 15 additional features (batch upload, wire management, amendments, portfolio tracking, etc.) were developed in parallel across three waves.
+> The core system (extraction, validation, approval workflow, database) was built in one intensive sprint. The 18 features (batch upload, wire management, amendments, portfolio tracking, cash forecasting, anomaly detection, audit PDF export, etc.) were developed in parallel across multiple waves.
 
 ### "What happens if the PDF parser fails?"
 > Two fallbacks. First, the system tries the Claude AI API for a second extraction attempt. If that also fails (or isn't configured), the system shows a clear error message and blocks processing -- it never silently approves incomplete data.

@@ -52,11 +52,17 @@ flowchart TB
         llm["Claude API<br/>Fallback"]
     end
 
-    subgraph validation["Validation Layer"]
+    subgraph validation["Validation + Anomaly Layer"]
         commit_check["Commitment Check"]
         wire_check["Wire Verification"]
         fuzzy["Fuzzy Fund Matching"]
         dupe["Duplicate Detection"]
+        anomaly["ML Anomaly Detection<br/>Amount / Timing / Frequency"]
+    end
+
+    subgraph reporting["Reporting Layer"]
+        forecast["Cash Forecasting<br/>12-month projection"]
+        audit_pdf["Regulatory Audit PDF<br/>Calibrium-branded"]
     end
 
     subgraph persistence["Database Layer (SQLite WAL)"]
@@ -70,15 +76,18 @@ flowchart TB
     ui --> extraction
     extraction --> validation
     validation --> persistence
+    persistence --> reporting
 
     classDef layer fill:#1E3161,stroke:#1E3161,color:#fff
     classDef component fill:#DDE9E8,stroke:#1E3161,color:#1E3161
     classDef db fill:#132338,stroke:#1E3161,color:#E8EDF2
+    classDef report fill:#F0F5F4,stroke:#1E3161,color:#1E3161
 
     class dashboard,process,audit,wire,contacts,portfolio component
     class regex,llm component
-    class commit_check,wire_check,fuzzy,dupe component
+    class commit_check,wire_check,fuzzy,dupe,anomaly component
     class ct,exec,processed,wires_db,users_db db
+    class forecast,audit_pdf report
 ```
 
 ---
@@ -143,7 +152,7 @@ flowchart LR
 | Success Criterion | Status | Evidence |
 |-------------------|--------|----------|
 | Handling unstructured data from different PDF formats | **Met** | Regex + LLM dual-mode, 5 languages, 4 diverse test PDFs (German, French, multi-page, reordered) |
-| Implementation of risk controls | **Met** | Commitment check, wire verification, duplicate detection, zero-amount guard, wire change audit |
+| Implementation of risk controls | **Met** | Commitment check, wire verification, duplicate detection, zero-amount guard, wire change audit, ML anomaly detection |
 | Functional web UI with human-in-the-loop (4-eye check) | **Met** | Role-based users, reviewer != submitter, two-step confirmation, batch approval |
 | Clean, documented code | **Met** | README, CLAUDE.md, 50 tests passing, modular architecture, design document |
 
@@ -162,6 +171,7 @@ mindmap
             Wire Verification
             Duplicate Detection
             Zero-Amount Guard
+            ML Anomaly Detection
         Process Controls
             4-Eye Principle
             Wire Change Audit
@@ -183,18 +193,19 @@ timeline
 
     section Delivered
         Core System : PDF extraction, validation engine, 4-eye approval, SQLite persistence
-        15 Features : Batch upload, dark mode, portfolio, wire mgmt, amendments, contacts
+        18 Features : Batch upload, dark mode, portfolio, wire mgmt, amendments, contacts
+        Advanced Analytics : Cash forecasting, ML anomaly detection, regulatory audit PDF
 
     section Now
         Enhanced Extraction : OCR for scanned PDFs, multi-currency + FX rates
-        Communications : SMTP email sending, Slack/Teams notifications
+        Communications : Slack/Teams notifications
 
     section Next
-        Enterprise : SSO / Azure AD auth, regulatory audit exports
-        Analytics : Cash position forecasting, ML anomaly detection
+        Enterprise : SSO / Azure AD auth
+        Integration : GP Portal APIs (eFront/Investran)
 
     section Future
-        Integration : GP Portal APIs (eFront/Investran), SWIFT MT103 generation
+        Payments : SWIFT MT103 generation
         Mobile : Push notification approvals for reviewers
 ```
 
@@ -218,6 +229,8 @@ timeline
 | Deliverable | File | Description |
 |-------------|------|-------------|
 | Web Application | `app.py` + modules | Full Streamlit dashboard at localhost:8501 |
+| Anomaly Detection | `anomaly_detector.py` | Statistical scoring (amount/timing/frequency z-scores) |
+| Audit PDF Generator | `audit_report.py` | Calibrium-branded regulatory report (ReportLab) |
 | Database | `sentinel.db` | Auto-created SQLite with 10 tables |
 | Test Suite | `tests/` | 50 pytest tests (extraction, validation, database) |
 | Test PDFs | `test_notices/` | 4 diverse format PDFs (DE, FR, multi-page, reordered) |
@@ -225,7 +238,7 @@ timeline
 | Speaker Notes | `docs/PRESENTATION_SCRIPT.md` | Full script + demo flow + Q&A cheat sheet |
 | Handout | `Project_Sentinel_Handout.pdf` | 13-page PDF with all project details |
 | Design Document | `docs/plans/2026-04-13-project-sentinel-design.md` | Architecture + roadmap |
-| Implementation Briefs | `docs/implementation-briefs/` | 15 feature briefs for parallel development |
+| Implementation Briefs | `docs/implementation-briefs/` | 18 feature briefs for parallel development |
 | README | `README.md` | Setup, features, architecture, test results |
 | CLAUDE.md | `CLAUDE.md` | AI development conventions |
 | Source Code | `github.com/SEFICO-23/Sentinel` | Full repository |

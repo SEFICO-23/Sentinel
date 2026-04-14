@@ -254,36 +254,42 @@ const features = [
   ["AI Extraction", "Regex + Claude API\ndual-mode parsing"],
   ["Batch Upload", "Process 10-20 PDFs\nat once"],
   ["4-Eye Approval", "Role-based with\n2-step confirmation"],
-  ["Dark / Light Mode", "Full theme support\nacross all pages"],
+  ["ML Anomaly Detection", "Z-score amount,\ntiming, frequency"],
   ["Wire Management", "Dual-auth workflow\nfor banking changes"],
   ["Commitment Amend", "Formal increase\nrequest workflow"],
-  ["Portfolio Metrics", "TVPI / DPI tracking\nwith cash flows"],
-  ["Audit Trail", "Filter, search, export\nwith PDF archive"],
+  ["Cash Forecasting", "12-month projection\nconfidence bands"],
+  ["Audit PDF Export", "Regulatory report\nfor external auditors"],
   ["Multi-Language", "EN / DE / FR / IT / ES\nPDF support"],
   ["Due Date Alerts", "Color-coded urgency\nwith countdowns"],
-  ["Excel Export", "Multi-sheet reports\nfor offline analysis"],
+  ["Portfolio Metrics", "TVPI / DPI tracking\nwith cash flows"],
   ["Duplicate Detection", "Exact + fuzzy match\nwith override"],
+  ["Excel Export", "Multi-sheet reports\nfor offline analysis"],
+  ["PDF Preview", "Side-by-side original\nand extracted data"],
+  ["GP Contacts", "Quick-access directory\nfor escalation"],
+  ["Dark / Light Mode", "Full theme support\nacross all pages"],
+  ["PDF Archive", "Persistent storage\nwith audit download"],
+  ["Email Integration", "SMTP sending with\nHTML templates"],
 ];
 
 features.forEach((f, i) => {
-  const col = i % 4;
-  const row = Math.floor(i / 4);
-  const x = 0.5 + col * 2.35;
+  const col = i % 6;
+  const row = Math.floor(i / 6);
+  const x = 0.3 + col * 1.6;
   const y = 1.5 + row * 1.35;
   s5.addShape(pres.shapes.ROUNDED_RECTANGLE, {
-    x: x, y: y, w: 2.15, h: 1.15,
+    x: x, y: y, w: 1.45, h: 1.15,
     fill: { color: row === 1 ? SAGE : WHITE },
     rectRadius: 0.08,
     line: { color: BORDER, width: 0.5 },
     shadow: { type: "outer", color: "000000", blur: 4, offset: 1, angle: 135, opacity: 0.08 },
   });
   s5.addText(f[0], {
-    x: x + 0.1, y: y + 0.1, w: 1.95, h: 0.4,
-    fontSize: 13, fontFace: FONT_BODY, color: NAVY, bold: true, margin: 0,
+    x: x + 0.08, y: y + 0.08, w: 1.3, h: 0.4,
+    fontSize: 10, fontFace: FONT_BODY, color: NAVY, bold: true, margin: 0,
   });
   s5.addText(f[1], {
-    x: x + 0.1, y: y + 0.5, w: 1.95, h: 0.55,
-    fontSize: 10, fontFace: FONT_BODY, color: TEXT_LIGHT, margin: 0,
+    x: x + 0.08, y: y + 0.48, w: 1.3, h: 0.6,
+    fontSize: 8, fontFace: FONT_BODY, color: TEXT_LIGHT, margin: 0,
   });
 });
 
@@ -304,6 +310,7 @@ const controls = [
   { title: "Duplicate Detection", desc: "Exact + fuzzy matching prevents re-processing of same capital call" },
   { title: "4-Eye Principle", desc: "Reviewer must be a different person with reviewer/admin role" },
   { title: "XSS Prevention", desc: "All PDF-sourced strings HTML-escaped before rendering in the UI" },
+  { title: "ML Anomaly Detection", desc: "Z-score amount, timing interval, and frequency burst analysis" },
   { title: "Zero-Amount Guard", desc: "Missing or unparseable amounts blocked from silent approval" },
   { title: "Wire Change Audit", desc: "Dual-authorization workflow for any banking detail modifications" },
   { title: "SMTP Isolation", desc: "Email passwords stored in session memory only, never persisted to DB" },
@@ -313,26 +320,26 @@ controls.forEach((c, i) => {
   const col = i % 2;
   const row = Math.floor(i / 2);
   const x = 0.5 + col * 4.7;
-  const y = 1.4 + row * 1.0;
+  const y = 1.4 + row * 0.85;
   s6.addShape(pres.shapes.ROUNDED_RECTANGLE, {
-    x: x, y: y, w: 4.5, h: 0.85,
+    x: x, y: y, w: 4.5, h: 0.72,
     fill: { color: "132338" }, rectRadius: 0.08,
   });
   s6.addShape(pres.shapes.OVAL, {
-    x: x + 0.15, y: y + 0.2, w: 0.45, h: 0.45,
+    x: x + 0.12, y: y + 0.15, w: 0.4, h: 0.4,
     fill: { color: GREEN },
   });
   s6.addText("S", {
-    x: x + 0.15, y: y + 0.2, w: 0.45, h: 0.45,
-    fontSize: 16, fontFace: FONT_BODY, color: WHITE, bold: true, align: "center", valign: "middle",
+    x: x + 0.12, y: y + 0.15, w: 0.4, h: 0.4,
+    fontSize: 14, fontFace: FONT_BODY, color: WHITE, bold: true, align: "center", valign: "middle",
   });
   s6.addText(c.title, {
-    x: x + 0.75, y: y + 0.08, w: 3.5, h: 0.35,
-    fontSize: 13, fontFace: FONT_BODY, color: WHITE, bold: true, margin: 0,
+    x: x + 0.65, y: y + 0.06, w: 3.6, h: 0.3,
+    fontSize: 12, fontFace: FONT_BODY, color: WHITE, bold: true, margin: 0,
   });
   s6.addText(c.desc, {
-    x: x + 0.75, y: y + 0.42, w: 3.5, h: 0.35,
-    fontSize: 10, fontFace: FONT_BODY, color: TEXT_WHITE, margin: 0,
+    x: x + 0.65, y: y + 0.36, w: 3.6, h: 0.3,
+    fontSize: 9, fontFace: FONT_BODY, color: TEXT_WHITE, margin: 0,
   });
 });
 
@@ -431,9 +438,9 @@ s8.addText("Roadmap & Future Outlook", {
 s8.addShape(pres.shapes.RECTANGLE, { x: 0.7, y: 1.1, w: 1.2, h: 0.04, fill: { color: NAVY } });
 
 const roadmap = [
-  { phase: "Now", color: GREEN, items: ["OCR for scanned PDFs", "Multi-currency + FX rates", "SMTP email sending", "Excel export reports"] },
-  { phase: "Next", color: AMBER, items: ["SSO / Azure AD auth", "Cash position forecasting", "Slack/Teams notifications", "Regulatory audit PDF export"] },
-  { phase: "Future", color: NAVY, items: ["GP Portal API integration", "ML anomaly detection", "SWIFT MT103 generation", "Mobile push approvals"] },
+  { phase: "Now", color: GREEN, items: ["OCR for scanned PDFs", "Multi-currency + FX rates", "Slack/Teams notifications"] },
+  { phase: "Next", color: AMBER, items: ["SSO / Azure AD auth", "GP Portal API integration"] },
+  { phase: "Future", color: NAVY, items: ["SWIFT MT103 generation", "Mobile push approvals"] },
 ];
 
 roadmap.forEach((r, i) => {
@@ -483,7 +490,7 @@ const metrics = [
   { num: "34+", label: "Historical\nPayments" },
   { num: "50", label: "Automated\nTests Passing" },
   { num: "5", label: "Languages\nSupported" },
-  { num: "15", label: "Features\nDelivered" },
+  { num: "18", label: "Features\nDelivered" },
 ];
 
 metrics.forEach((m, i) => {

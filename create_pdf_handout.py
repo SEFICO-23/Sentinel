@@ -318,7 +318,7 @@ story.append(Paragraph(
 # ══════════════════════════════════════
 # SECTION 3: FEATURE INVENTORY
 # ══════════════════════════════════════
-story.append(Paragraph("3. Feature Inventory (15 Features Delivered)", styles["CH1"]))
+story.append(Paragraph("3. Feature Inventory (18 Features Delivered)", styles["CH1"]))
 story.append(make_header_line())
 
 feat_data = [
@@ -338,6 +338,9 @@ feat_data = [
     ["13", "Portfolio Summary", "Analytics", "TVPI/DPI metrics, cumulative cash flows"],
     ["14", "Excel Export", "Reporting", "Multi-sheet workbook with formatted data"],
     ["15", "Dark/Light Mode", "UX", "Full theme support across all components"],
+    ["16", "Cash Forecasting", "Analytics", "12-month projection with confidence bands, runway"],
+    ["17", "Audit PDF Export", "Compliance", "Calibrium-branded regulatory report (ReportLab)"],
+    ["18", "ML Anomaly Detection", "Risk", "Z-score amount, timing, frequency burst analysis"],
 ]
 story.append(make_table(feat_data[0], feat_data[1:], col_widths=[10*mm, 35*mm, 25*mm, 86*mm]))
 
@@ -355,6 +358,7 @@ sec_data = [
     ["Wire Verification", "Automated", "IBAN normalized and compared to approved database"],
     ["Duplicate Detection", "Automated", "Exact + fuzzy matching prevents re-processing"],
     ["Zero-Amount Guard", "Automated", "Blocks approval when amount extraction fails"],
+    ["ML Anomaly Detection", "Statistical", "Z-score amount, timing interval, frequency burst analysis"],
     ["4-Eye Principle", "Process", "Enforced at DB level: reviewer != submitter"],
     ["XSS Prevention", "Technical", "HTML-escaped PDF data in all rendered output"],
     ["Wire Change Audit", "Process", "Dual-authorization for banking detail modifications"],
@@ -371,15 +375,14 @@ story.append(make_header_line())
 
 road_data = [
     ["Phase", "Feature", "Business Value"],
+    ["Delivered", "Cash position forecasting", "12-month projection with confidence bands"],
+    ["Delivered", "Regulatory audit PDF export", "Calibrium-branded report for external auditors"],
+    ["Delivered", "ML anomaly detection", "Z-score amount, timing, frequency analysis"],
     ["Now", "OCR for scanned PDFs", "Handle image-based notices from legacy GPs"],
     ["Now", "Multi-currency + FX rates", "Process USD/GBP/CHF calls with conversion"],
-    ["Now", "SMTP email sending", "Send confirmations directly from the app"],
+    ["Now", "Slack/Teams notifications", "Alert on due dates and validation failures"],
     ["Next", "SSO / Azure AD authentication", "Replace dropdown with enterprise login"],
-    ["Next", "Cash position forecasting", "Predict liquidity needs from schedules"],
-    ["Next", "Slack/Teams notifications", "Alert on due dates and validation failures"],
-    ["Next", "Regulatory audit PDF export", "Compliance-ready reports for auditors"],
-    ["Future", "GP Portal API integration", "Electronic notices, eliminate PDF parsing"],
-    ["Future", "ML anomaly detection", "Flag unusual call patterns proactively"],
+    ["Next", "GP Portal API integration", "Electronic notices, eliminate PDF parsing"],
     ["Future", "SWIFT MT103 generation", "Straight-through payment processing"],
     ["Future", "Mobile push approvals", "Approve on-the-go for reviewers"],
 ]
@@ -519,7 +522,7 @@ story.append(make_header_line())
 
 qas = [
     ("How long did this take to build?",
-     "The core system was built in one intensive sprint. The 15 additional features were developed in parallel across three waves using Claude Code's multi-session orchestration."),
+     "The core system was built in one intensive sprint. The 18 features were developed in parallel across multiple waves using Claude Code's multi-session orchestration."),
     ("What happens if the PDF parser fails?",
      "Two fallbacks: first the Claude AI API attempts extraction, then the system shows a clear error and blocks processing. It never silently approves incomplete data."),
     ("Can we use this with real data?",
@@ -576,6 +579,7 @@ dep_data = [
     ["pdfplumber", ">=0.10.0", "PDF text extraction"],
     ["rapidfuzz", ">=3.0.0", "Fuzzy string matching"],
     ["openpyxl", ">=3.1.0", "Excel read/write"],
+    ["reportlab", ">=4.0", "PDF report generation"],
     ["anthropic", "optional", "Claude API for LLM extraction"],
 ]
 story.append(make_table(dep_data[0], dep_data[1:], col_widths=[30*mm, 25*mm, 101*mm]))
@@ -595,14 +599,16 @@ story.append(Spacer(1, 4*mm))
 story.append(Paragraph("Codebase Metrics", styles["CH2"]))
 code_data = [
     ["File", "Lines", "Purpose"],
-    ["app.py", "~1,900", "Main Streamlit application (UI, routing, theme)"],
-    ["database.py", "~1,060", "SQLite persistence (10 tables, CRUD, atomic transactions)"],
+    ["app.py", "~2,000", "Main Streamlit application (UI, routing, theme)"],
+    ["database.py", "~1,200", "SQLite persistence (10 tables, CRUD, forecasting)"],
+    ["anomaly_detector.py", "~130", "ML anomaly scoring (amount/timing/frequency)"],
+    ["audit_report.py", "~250", "Regulatory PDF report generator (ReportLab)"],
     ["validation_engine.py", "~175", "Commitment + wire checks, fuzzy matching"],
     ["pdf_extractor.py", "~166", "Multi-language regex PDF parser"],
     ["llm_extractor.py", "~157", "Claude API integration + smart fallback"],
     ["data_loader.py", "~69", "Excel seed data ingestion"],
     ["email_sender.py", "~50", "SMTP email sending"],
-    ["Total", "~3,580", "Complete application"],
+    ["Total", "~4,200", "Complete application"],
 ]
 story.append(make_table(code_data[0], code_data[1:], col_widths=[38*mm, 18*mm, 100*mm]))
 
